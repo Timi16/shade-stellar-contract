@@ -1,6 +1,7 @@
 #![cfg(test)]
 
-use super::*;
+use crate::shade::Shade;
+use crate::shade::ShadeClient;
 use soroban_sdk::{vec, Env, String};
 
 #[test]

@@ -6,9 +6,13 @@ pub fn enter(env: &Env) {
     if env.storage().persistent().has(&DataKey::ReentrancyStatus) {
         panic_with_error!(env, ContractError::Reentrancy);
     }
-    env.storage().persistent().set(&DataKey::ReentrancyStatus, &true);
+    env.storage()
+        .persistent()
+        .set(&DataKey::ReentrancyStatus, &true);
 }
 
 pub fn exit(env: &Env) {
-    env.storage().persistent().remove(&DataKey::ReentrancyStatus);
+    env.storage()
+        .persistent()
+        .remove(&DataKey::ReentrancyStatus);
 }

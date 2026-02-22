@@ -1,4 +1,4 @@
-use soroban_sdk::{contractevent, Address, Env};
+use soroban_sdk::{contractevent, Address, BytesN, Env};
 
 #[contractevent]
 pub struct InitalizedEvent {
@@ -87,6 +87,135 @@ pub fn publish_invoice_created_event(
         merchant,
         amount,
         token,
+    }
+    .publish(env);
+}
+
+#[contractevent]
+pub struct MerchantVerifiedEvent {
+    pub merchant_id: u64,
+    pub status: bool,
+    pub timestamp: u64,
+}
+
+pub fn publish_merchant_verified_event(env: &Env, merchant_id: u64, status: bool, timestamp: u64) {
+    MerchantVerifiedEvent {
+        merchant_id,
+        status,
+        timestamp,
+    }
+    .publish(env);
+}
+
+#[contractevent]
+pub struct MerchantKeySetEvent {
+    pub merchant: Address,
+    pub key: BytesN<32>,
+    pub timestamp: u64,
+}
+
+pub fn publish_merchant_key_set_event(
+    env: &Env,
+    merchant: Address,
+    key: BytesN<32>,
+    timestamp: u64,
+) {
+    MerchantKeySetEvent {
+        merchant,
+        key,
+        timestamp,
+    }
+    .publish(env);
+}
+
+#[contractevent]
+pub struct RoleGrantedEvent {
+    pub user: Address,
+    pub role: crate::types::Role,
+    pub timestamp: u64,
+}
+
+pub fn publish_role_granted_event(
+    env: &Env,
+    user: Address,
+    role: crate::types::Role,
+    timestamp: u64,
+) {
+    RoleGrantedEvent {
+        user,
+        role,
+        timestamp,
+    }
+    .publish(env);
+}
+
+#[contractevent]
+pub struct RoleRevokedEvent {
+    pub user: Address,
+    pub role: crate::types::Role,
+    pub timestamp: u64,
+}
+
+pub fn publish_role_revoked_event(
+    env: &Env,
+    user: Address,
+    role: crate::types::Role,
+    timestamp: u64,
+) {
+    RoleRevokedEvent {
+        user,
+        role,
+        timestamp,
+    }
+    .publish(env);
+}
+
+#[contractevent]
+pub struct ContractPausedEvent {
+    pub admin: Address,
+    pub timestamp: u64,
+}
+
+pub fn publish_contract_paused_event(env: &Env, admin: Address, timestamp: u64) {
+    ContractPausedEvent { admin, timestamp }.publish(env);
+}
+
+#[contractevent]
+pub struct ContractUnpausedEvent {
+    pub admin: Address,
+    pub timestamp: u64,
+}
+
+pub fn publish_contract_unpaused_event(env: &Env, admin: Address, timestamp: u64) {
+    ContractUnpausedEvent { admin, timestamp }.publish(env);
+}
+
+#[contractevent]
+pub struct FeeSetEvent {
+    pub token: Address,
+    pub fee: i128,
+    pub timestamp: u64,
+}
+
+pub fn publish_fee_set_event(env: &Env, token: Address, fee: i128, timestamp: u64) {
+    FeeSetEvent {
+        token,
+        fee,
+        timestamp,
+    }
+    .publish(env);
+}
+
+#[contractevent]
+pub struct ContractUpgradedEvent {
+    pub new_wasm_hash: BytesN<32>,
+    pub timestamp: u64,
+}
+
+pub fn publish_contract_upgraded_event(env: &Env, new_wasm_hash: BytesN<32>, timestamp: u64) {
+    ContractUpgradedEvent {
+        new_wasm_hash,
+        timestamp,
     }
     .publish(env);
 }

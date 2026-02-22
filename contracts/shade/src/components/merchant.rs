@@ -1,8 +1,8 @@
 use crate::components::core;
 use crate::errors::ContractError;
 use crate::events;
-use crate::types::{DataKey, Merchant};
-use soroban_sdk::{panic_with_error, Address, Env};
+use crate::types::{DataKey, Merchant, MerchantFilter};
+use soroban_sdk::{panic_with_error, Address, BytesN, Env, Vec};
 
 pub fn register_merchant(env: &Env, merchant: &Address) {
     merchant.require_auth();
@@ -130,4 +130,86 @@ pub fn is_merchant_active(env: &Env, merchant_id: u64) -> bool {
         .unwrap_or_else(|| panic_with_error!(env, ContractError::MerchantNotFound));
 
     merchant.active
+}
+
+pub fn verify_merchant(env: &Env, admin: &Address, merchant_id: u64, status: bool) {
+    core::assert_admin(env, admin);
+
+    let mut merchant_data = get_merchant(env, merchant_id);
+    merchant_data.verified = status;
+
+    env.storage()
+        .persistent()
+        .set(&DataKey::Merchant(merchant_id), &merchant_data);
+
+    events::publish_merchant_verified_event(env, merchant_id, status, env.ledger().timestamp());
+}
+
+pub fn is_merchant_verified(env: &Env, merchant_id: u64) -> bool {
+    let merchant_data = get_merchant(env, merchant_id);
+    merchant_data.verified
+}
+
+pub fn set_merchant_key(env: &Env, merchant: &Address, key: &BytesN<32>) {
+    merchant.require_auth();
+
+    if !is_merchant(env, merchant) {
+        panic_with_error!(env, ContractError::MerchantNotFound);
+    }
+
+    env.storage()
+        .persistent()
+        .set(&DataKey::MerchantKey(merchant.clone()), key);
+
+    events::publish_merchant_key_set_event(
+        env,
+        merchant.clone(),
+        key.clone(),
+        env.ledger().timestamp(),
+    );
+}
+
+pub fn get_merchant_key(env: &Env, merchant: &Address) -> BytesN<32> {
+    env.storage()
+        .persistent()
+        .get(&DataKey::MerchantKey(merchant.clone()))
+        .unwrap_or_else(|| panic_with_error!(env, ContractError::MerchantKeyNotFound))
+}
+
+pub fn get_merchants(env: &Env, filter: MerchantFilter) -> Vec<Merchant> {
+    let merchant_count: u64 = env
+        .storage()
+        .persistent()
+        .get(&DataKey::MerchantCount)
+        .unwrap_or(0);
+
+    let mut merchants: Vec<Merchant> = Vec::new(env);
+
+    for i in 1..=merchant_count {
+        if let Some(merchant) = env
+            .storage()
+            .persistent()
+            .get::<_, Merchant>(&DataKey::Merchant(i))
+        {
+            let mut matches = true;
+
+            if let Some(active) = filter.is_active {
+                if merchant.active != active {
+                    matches = false;
+                }
+            }
+
+            if let Some(verified) = filter.is_verified {
+                if merchant.verified != verified {
+                    matches = false;
+                }
+            }
+
+            if matches {
+                merchants.push_back(merchant);
+            }
+        }
+    }
+
+    merchants
 }

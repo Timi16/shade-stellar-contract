@@ -1,7 +1,7 @@
 #![cfg(test)]
 
-use crate::errors::ContractError;
 use crate::components::merchant as merchant_component;
+use crate::errors::ContractError;
 use crate::shade::{Shade, ShadeClient};
 use soroban_sdk::testutils::{Address as _, Events as _};
 use soroban_sdk::{Address, Env, Map, Symbol, TryIntoVal, Val};
@@ -62,7 +62,13 @@ fn test_successful_merchant_verification() {
 
     env.as_contract(&contract_id, || {
         merchant_component::verify_merchant(&env, &admin, merchant_id, true);
-        assert_latest_merchant_verified_event(&env, &contract_id, merchant_id, true, expected_timestamp);
+        assert_latest_merchant_verified_event(
+            &env,
+            &contract_id,
+            merchant_id,
+            true,
+            expected_timestamp,
+        );
     });
 
     let merchant_data = client.get_merchant(&merchant_id);

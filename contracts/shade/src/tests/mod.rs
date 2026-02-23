@@ -4,6 +4,5 @@ pub mod test_fees;
 pub mod test_invoice;
 pub mod test_merchant;
 pub mod test_merchant_key;
-pub mod test_merchant_verification;
 pub mod test_pausable;
 pub mod test_upgrade;

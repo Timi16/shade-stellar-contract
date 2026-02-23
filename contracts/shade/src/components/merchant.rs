@@ -105,7 +105,12 @@ pub fn set_merchant_status(env: &Env, admin: &Address, merchant_id: u64, status:
         .persistent()
         .set(&DataKey::Merchant(merchant_id), &merchant);
 
-    events::publish_merchant_status_changed_event(env, merchant_id, status, env.ledger().timestamp());
+    events::publish_merchant_status_changed_event(
+        env,
+        merchant_id,
+        status,
+        env.ledger().timestamp(),
+    );
 }
 
 pub fn is_merchant_active(env: &Env, merchant_id: u64) -> bool {

@@ -58,7 +58,12 @@ pub struct MerchantStatusChangedEvent {
     pub timestamp: u64,
 }
 
-pub fn publish_merchant_status_changed_event(env: &Env, merchant_id: u64, active: bool, timestamp: u64) {
+pub fn publish_merchant_status_changed_event(
+    env: &Env,
+    merchant_id: u64,
+    active: bool,
+    timestamp: u64,
+) {
     MerchantStatusChangedEvent {
         merchant_id,
         active,

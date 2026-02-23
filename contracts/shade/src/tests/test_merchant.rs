@@ -30,7 +30,10 @@ fn assert_latest_merchant_status_event(
     assert_eq!(topics.len(), 1);
 
     let event_name: Symbol = topics.get(0).unwrap().try_into_val(env).unwrap();
-    assert_eq!(event_name, Symbol::new(env, "merchant_status_changed_event"));
+    assert_eq!(
+        event_name,
+        Symbol::new(env, "merchant_status_changed_event")
+    );
 
     let data_map: Map<Symbol, Val> = data.try_into_val(env).unwrap();
     let merchant_id_val = data_map.get(Symbol::new(env, "merchant_id")).unwrap();
@@ -64,7 +67,7 @@ fn test_set_merchant_status_admin_can_deactivate() {
     assert_eq!(client.is_merchant_active(&1), true);
 
     let expected_timestamp = env.ledger().timestamp();
-    
+
     env.as_contract(&contract_id, || {
         merchant_component::set_merchant_status(&env, &admin, 1, false);
         assert_latest_merchant_status_event(&env, &contract_id, 1, false, expected_timestamp);
@@ -95,7 +98,7 @@ fn test_set_merchant_status_admin_can_activate() {
 
     // Now activate
     let expected_timestamp = env.ledger().timestamp();
-    
+
     env.as_contract(&contract_id, || {
         merchant_component::set_merchant_status(&env, &admin, 1, true);
         assert_latest_merchant_status_event(&env, &contract_id, 1, true, expected_timestamp);
@@ -230,12 +233,12 @@ fn test_set_same_status_twice() {
     env.as_contract(&contract_id, || {
         merchant_component::set_merchant_status(&env, &admin, 1, false);
         merchant_component::set_merchant_status(&env, &admin, 1, false);
-        
+
         // Check events - should have at least 2 events (from the two calls)
         let events = env.events().all();
         // Events will include merchant_registered and the two status changes
         assert!(events.len() >= 2);
     });
-    
+
     assert_eq!(client.is_merchant_active(&1), false);
 }
